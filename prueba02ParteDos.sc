@@ -1,5 +1,30 @@
 case class Publicacion(id: Int, autor: String, texto: String, reacciones: List[String])
-case class publicacionConPuntaje(publi: Publicacion, puntaje: Int)
+case class PublicacionConPuntaje(pub: Publicacion, puntaje: Int)
+
+val puntajesReacciones = Map(
+  "like"  -> 1,
+  "love"  -> 3,
+  "wow"   -> 2,
+  "haha"  -> 1,
+  "angry" -> -1
+)
+
+def publicacionMasImpactante(publicaciones: List[Publicacion], minLong: Int): PublicacionConPuntaje = {
+
+  val publicacionesValidas =
+    publicaciones.filter(pub => pub.texto.length >= minLong)
+
+  val publicacionesConPuntaje =
+    publicacionesValidas.map { pub =>
+
+      val puntajes = pub.reacciones.map(reac => puntajesReacciones.getOrElse(reac, 0))
+
+      val puntajeTotal = puntajes.sum
+
+      PublicacionConPuntaje(pub, puntajeTotal)
+    }
+  publicacionesConPuntaje.maxBy(_.puntaje)
+}
 
 val publicaciones: List[Publicacion] = List(
   Publicacion(
@@ -76,15 +101,9 @@ val publicaciones: List[Publicacion] = List(
   )
 )
 
-val puntajes = Map(
-  "like" -> 1,
-  "love" -> 3,
-  "wow" -> 2,
-  "haha" -> 1,
-  "angry" -> -1
-)
+val resultado = publicacionMasImpactante(publicaciones, minLong = 20)
 
-val minimo = 10
-
-val publicacionesFiltradas =
-  publicaciones.filter(p => p.texto.length >= minimo)
+println("Publicación más impactante:")
+println("Autor: " + resultado.pub.autor)
+println("Texto: " + resultado.pub.texto)
+println("Puntaje total: " + resultado.puntaje)
